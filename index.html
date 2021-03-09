@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>utilitario</title>
+    <style>
+        body{
+            text-align: center;
+            margin: 5%;
+        }
+
+        main, head{
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body>
+    <head>
+        <select id="trib">
+
+            <option value="TRF1">TRF1</option>
+            <option value="TRF2">TRF2</option>
+            <option value="TRF3">TRF3</option>
+            <option value="TRF4">TRF4</option>
+            <option value="TRF5">TRF5</option>
+
+            <option value="">=======</option>
+
+            <option value="TJAP">TJAP</option>
+            <option value="TJRO">TJRO</option>
+            <option value="TJPA">TJPA</option>
+            <option value="TJMA">TJMA</option>
+            <option value="TJSE">TJSE</option>
+            <option value="TJPR">TJPR</option>
+
+        </select>
+        <input type="date" id="dat" placeholder="Data"/>
+        <input type="number" id="pag" placeholder="Número da página"/>
+        <button onclick="buscarDados()"> Buscar</button>
+    </head>
+
+    <main id="conteudo">
+
+    </main>
+
+    <!-- Importando o JQuery -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script>
+
+
+        //Pegando os itens do HTML para serem usados no código
+        let tribunais = document.getElementById("trib");
+        let data = document.getElementById("dat");
+        let pagina = document.getElementById("pag");
+        let conteudo = document.getElementById("conteudo");
+
+        //Função chamada ao clicar o botão
+        function buscarDados(){
+
+            conteudo.innerHTML = "";//Limpando página antes da busca
+            let tribunal= tribunais.options[tribunais.selectedIndex].text //pegando tribunal escolhido
+
+
+            //Montando URL
+            const url = `https://comunicaapi.pje.jus.br/api/v1/comunicacao?pagina=${pagina}&itensPorPagina=100&siglaTribunal=${tribunal}&dataDisponibilizacaoInicio=${data.value}&dataDisponibilizacaoFim=${data.value}`;
+            
+            //faz um GET na URL de forma assíncrona
+            $.get(url, function(dados_json){
+
+                console.log(dados_json);
+
+                //Adiciona cada item do json a página
+                dados_json.items.forEach( json =>{
+
+                    formatarHTML(   
+                                    json.siglaTribunal,
+                                    pagina.value, 
+                                    json.meiocompleto, 
+                                    json.numero_processo, 
+                                    json.nomeOrgao, 
+                                    json.tipoDocumento, 
+                                    json.datadisponibilizacao, 
+                                    json.texto,
+                                    json.destinatarioadvogados, 
+                                    json.destinatarios, 
+                                    json.hash, 
+                                    json.link 
+                                );
+
+                })
+            });
+            
+        }
+
+        //Função responsavel pela criação e adição de itens na página
+        function formatarHTML(cabecalho, pagina, meio, num_processo, orgao, tipo_doc, data_disponibilizacao, teor, autores, reu, cod_certidao, link){
+
+            //Criando variavel com o HTML do novo item
+            let novoHTML = `<div>
+                                <strong>${cabecalho}</strong></br>
+                                <strong>Página: </strong>${pagina}</br></br>
+                                <strong>${meio}</strong></br>
+                                <strong>Número do processo: </strong>${num_processo}</br>
+                                <strong>Órgão: </strong>${orgao}</br>
+                                <strong>Tipo de documento: </strong>${tipo_doc}</br>
+                                <strong>Disponibilizado em: </strong>${data_disponibilizacao}</br>
+                                <strong>Teor: </strong>${teor}</br>`;
+            
+            autores.forEach(autor => {
+                
+                novoHTML += `<strong>Autor: </strong>${JSON.stringify(autor)}</br>`
+
+            });
+
+            reu.forEach(reu => {
+                
+                novoHTML += `<strong>Reu: </strong>${JSON.stringify(reu)}</br>`
+
+            });
+
+            novoHTML += `
+                            <strong>Código da certidão: </strong>${cod_certidao}</br>
+                            <strong>Link: </strong>${link}</br>
+                            </div></br></br>`;
+
+            //Adicionando novo item a página
+            conteudo.innerHTML += novoHTML;           
+
+        }
+
+    </script>
+</body>
+</html>
