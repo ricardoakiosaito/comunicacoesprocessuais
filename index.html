@@ -65,7 +65,7 @@
 
 
             //Montando URL
-            const url = `https://comunicaapi.pje.jus.br/api/v1/comunicacao?pagina=${pagina}&itensPorPagina=100&siglaTribunal=${tribunal}&dataDisponibilizacaoInicio=${data.value}&dataDisponibilizacaoFim=${data.value}`;
+            const url = `https://comunicaapi.pje.jus.br/api/v1/comunicacao?pagina=${pagina.value}&itensPorPagina=100&siglaTribunal=${tribunal}&dataDisponibilizacaoInicio=${data.value}&dataDisponibilizacaoFim=${data.value}`;
             
             //faz um GET na URL de forma assíncrona
             $.get(url, function(dados_json){
