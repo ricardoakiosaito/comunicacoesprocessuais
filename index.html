@@ -19,6 +19,8 @@
 </head>
 <body>
     <head>
+
+        <input type="text" id="oab" placeholder="Num OAB"/>
         <select id="trib">
 
             <option value="TRF1">TRF1</option>
@@ -52,18 +54,25 @@
 
 
         //Pegando os itens do HTML para serem usados no código
+        let num_oab = document.getElementById("oab");
         let tribunais = document.getElementById("trib");
         let data = document.getElementById("dat");
         let pagina = document.getElementById("pag");
         let conteudo = document.getElementById("conteudo");
 
+
         //Função chamada ao clicar o botão
         function buscarDados(){
 
+            
+
+            //lista de numeros da oab
+            lista_num_oab = num_oab.value.split("-");
+
             conteudo.innerHTML = "";//Limpando página antes da busca
-            let tribunal= tribunais.options[tribunais.selectedIndex].text //pegando tribunal escolhido
+            let tribunal= tribunais.options[tribunais.selectedIndex].text; //pegando tribunal escolhido
 
-
+            
             //Montando URL
             const url = `https://comunicaapi.pje.jus.br/api/v1/comunicacao?pagina=${pagina.value}&itensPorPagina=100&siglaTribunal=${tribunal}&dataDisponibilizacaoInicio=${data.value}&dataDisponibilizacaoFim=${data.value}`;
             
@@ -72,10 +81,10 @@
 
                 console.log(dados_json);
 
-                //Adiciona cada item do json a página
                 dados_json.items.forEach( json =>{
-
-                    formatarHTML(   
+                    if(typeof(json.destinatarioadvogados) != "undefined"){ if( json.destinatarioadvogados.length > 0){
+                        if(encontra_pares(lista_num_oab, json.destinatarioadvogados)){
+                        formatarHTML(   
                                     json.siglaTribunal,
                                     pagina.value, 
                                     json.meiocompleto, 
@@ -89,9 +98,16 @@
                                     json.hash, 
                                     json.link 
                                 );
+                        }
+                    }}
+                });    
+                
+                   
 
-                })
+                    
+
             });
+
             
         }
 
@@ -129,6 +145,25 @@
             //Adicionando novo item a página
             conteudo.innerHTML += novoHTML;           
 
+        }
+
+        function encontra_pares(lista_oab, encontrados){
+
+            let res = false
+            lista_oab.forEach((item) =>{
+
+                encontrados.forEach(item2 =>{
+
+                    if(item == item2.advogado.numero_oab){
+                        console.log(lista_oab);
+                        console.log(encontrados);
+                        res = true;
+                    }
+
+                });
+            });
+            console.log("Nenhum foi encontrado")
+            return res
         }
 
     </script>
